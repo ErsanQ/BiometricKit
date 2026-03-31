@@ -1,5 +1,8 @@
 import Foundation
+
+#if canImport(LocalAuthentication)
 import LocalAuthentication
+#endif
 
 /// The type of biometric authentication available on the device.
 public enum BiometricType: String, Sendable {
@@ -12,7 +15,11 @@ public enum BiometricType: String, Sendable {
 /// The result of a biometric authentication attempt.
 public enum BiometricResult: Sendable {
     case success
+    #if canImport(LocalAuthentication)
     case failure(LAError)
+    #else
+    case failure(Error)
+    #endif
 }
 
 /// A manager responsible for handling biometric authentication.
@@ -26,6 +33,7 @@ public final class BiometricManager: ObservableObject {
     
     /// Returns the type of biometric authentication available on the current device.
     public var type: BiometricType {
+        #if canImport(LocalAuthentication)
         let context = LAContext()
         var error: NSError?
         
@@ -40,6 +48,9 @@ public final class BiometricManager: ObservableObject {
         case .none: return .none
         @unknown default: return .none
         }
+        #else
+        return .none
+        #endif
     }
     
     /// A boolean value indicating whether biometric authentication is available on the device.
@@ -51,11 +62,10 @@ public final class BiometricManager: ObservableObject {
     /// - Parameter reason: The reason for requesting authentication, shown to the user.
     /// - Returns: A `BiometricResult` indicating success or failure.
     public func authenticate(reason: String) async -> BiometricResult {
+        #if canImport(LocalAuthentication)
         let context = LAContext()
         var error: NSError?
         
-        // Use .deviceOwnerAuthentication if you want a fallback to passcode,
-        // but normally BiometricKit implies biometric-only.
         guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
             if let laError = error as? LAError {
                 return .failure(laError)
@@ -70,7 +80,10 @@ public final class BiometricManager: ObservableObject {
             if let laError = error as? LAError {
                 return .failure(laError)
             }
-            return .failure(LAError(.authenticationFailed))
+            return .failure(error)
         }
+        #else
+        return .failure(NSError(domain: "BiometricKit", code: -1, userInfo: [NSLocalizedDescriptionKey: "Biometrics not supported on this platform"]))
+        #endif
     }
 }
