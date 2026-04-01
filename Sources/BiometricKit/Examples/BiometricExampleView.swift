@@ -1,5 +1,4 @@
 import SwiftUI
-import BiometricKit
 
 struct BiometricExampleView: View {
     @State private var showAuth = false

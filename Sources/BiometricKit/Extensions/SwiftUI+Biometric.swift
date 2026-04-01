@@ -8,6 +8,7 @@ public extension View {
     ///   - reason: A localized string explaining the reason for the authentication request.
     ///   - onCompletion: A closure to execute when the authentication completes.
     /// - Returns: A view that handles biometric authentication.
+    @MainActor
     func onBiometricAuth(
         isPresented: Binding<Bool>,
         reason: String,
@@ -17,19 +18,18 @@ public extension View {
     }
 }
 
+@MainActor
 private struct BiometricAuthModifier: ViewModifier {
     @Binding var isPresented: Bool
     let reason: String
     let onCompletion: (BiometricResult) -> Void
-    
-    @StateObject private var manager = BiometricManager.shared
     
     func body(content: Content) -> some View {
         content
             .onChange(of: isPresented) { newValue in
                 if newValue {
                     Task {
-                        let result = await manager.authenticate(reason: reason)
+                        let result = await BiometricManager.shared.authenticate(reason: reason)
                         isPresented = false
                         onCompletion(result)
                     }
