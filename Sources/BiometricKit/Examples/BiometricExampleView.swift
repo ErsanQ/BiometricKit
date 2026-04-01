@@ -1,3 +1,4 @@
+#if canImport(SwiftUI)
 import SwiftUI
 
 struct BiometricExampleView: View {
@@ -65,3 +66,4 @@ struct BiometricExampleView: View {
 #Preview {
     BiometricExampleView()
 }
+#endif

@@ -21,6 +21,7 @@ let package = Package(
         .target(
             name: "BiometricKit",
             dependencies: [],
-            path: "Sources/BiometricKit"),
+            path: "Sources/BiometricKit",
+            exclude: ["Examples"]),
     ]
 )

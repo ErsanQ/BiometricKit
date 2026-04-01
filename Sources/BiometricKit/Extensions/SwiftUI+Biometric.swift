@@ -1,3 +1,4 @@
+#if canImport(SwiftUI)
 import SwiftUI
 
 public extension View {
@@ -37,3 +38,4 @@ private struct BiometricAuthModifier: ViewModifier {
             }
     }
 }
+#endif
